@@ -59,15 +59,14 @@ export const segmentTextWrappers = [
         },
       },
       setup(props) {
-        return () => {
-          return h(
+        return () =>
+          h(
             tag,
             null,
             props.node.children.map((child) =>
               h(SegmentTextImpl, { node: child })
             )
           );
-        };
       },
     });
     return Object.assign(res, item);
