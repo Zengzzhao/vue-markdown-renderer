@@ -35,6 +35,7 @@ function jsx(type: any, props: Record<any, any>, key: any) {
   return h(type, props, children);
 }
 
+// 代码块结构为pre > code
 export default defineComponent({
   name: "CodeBlock",
   inheritAttrs: false,
@@ -54,12 +55,11 @@ export default defineComponent({
           child && typeof child === "object" && child.tagName === "code"
       ) as CodeNode | undefined;
 
+      // 如果没有找到 code 节点，直接返回 pre 元素
       if (!codeNode) {
-        // 如果没有找到 code 节点，直接返回 pre 元素
         return h("pre", { class: props.node.className });
       }
-
-      // 提取语言信息（可能来自 class 属性）
+      // 通过代码块的属性上名为language-xxx的class提取当前代码块语言xxx
       let language: string | null = null;
       if (codeNode.properties?.className) {
         const classNames = Array.isArray(codeNode.properties.className)
@@ -74,6 +74,7 @@ export default defineComponent({
           language = langClass.replace(/^(language-|lang-)/, "");
         }
       }
+
       // 使用toJsxRuntime将codeNode转换为Vue vnode
       const highlightVnode = toJsxRuntime(codeNode, {
         Fragment,
@@ -82,20 +83,21 @@ export default defineComponent({
         passKeys: true,
         passNode: true,
       });
+      
       // 将 highlightVnode 包装在 pre 元素中
       const wrappedVnode = h("pre", { class: props.node.className }, [
         highlightVnode,
       ]);
-      // 检查是否有自定义的 codeBlockRenderer
+      // 如果有自定义的 codeBlockRenderer 使用自定义渲染
       const customRenderer = proxyProps.codeBlockRenderer;
       if (customRenderer) {
+        // 外部自定义codeBlockRenderer组件可以接收到language、highlightVnode(代码块组件的vnode对象),这样复制按钮、语言标签、展开折叠等可以自定义实现
         return h(customRenderer, {
           language,
           highlightVnode: wrappedVnode,
         });
       }
-
-      // 默认的代码块渲染
+      // 如果没有自定义的codeBlockRenderer，使用默认的代码块渲染
       return wrappedVnode;
     };
   },

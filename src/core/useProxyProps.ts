@@ -1,3 +1,4 @@
+// 在主组件中将组件的props通过inject租入传给子组件，子组件通过provide使用 
 import { inject, provide } from "vue";
 import type { Component } from "vue";
 
